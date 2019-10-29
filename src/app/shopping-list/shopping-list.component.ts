@@ -21,10 +21,6 @@ export class ShoppingListComponent implements OnInit {
     this.ingridients = this.store.select('shoppingList');
   }
 
-  onIngridientAdded(ingridient: Ingridient) {
-    this.ingridients.push(ingridient);
-  }
-
   onClickItem(index: number) {
     this.store.dispatch(new shoppingListActions.StartEdit(index));
   }
