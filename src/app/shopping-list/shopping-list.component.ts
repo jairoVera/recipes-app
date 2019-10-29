@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { Subscription, Observable } from 'rxjs';
+import { Observable } from 'rxjs';
 import { Store } from '@ngrx/store';
 
 import { Ingridient } from '../shared/ingridient.model';
-import * as fromShoppingList from './store/shopping-list.reducer';
+import * as fromApp from '../store/app.reducer';
 import * as shoppingListActions from './store/shopping-list.actions';
 
 @Component({
@@ -15,7 +15,7 @@ export class ShoppingListComponent implements OnInit {
 
   ingridients: Observable<{ ingridients: Ingridient[] }>;
 
-  constructor(private store: Store<fromShoppingList.AppState>) {}
+  constructor(private store: Store<fromApp.AppState>) {}
 
   ngOnInit() {
     this.ingridients = this.store.select('shoppingList');
