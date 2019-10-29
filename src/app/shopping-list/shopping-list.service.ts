@@ -8,7 +8,6 @@
  * We are keeping the ShoppingListService class file are reference.
  */
 import { Ingridient } from '../shared/ingridient.model';
-import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs';
 
 // @Injectable({
