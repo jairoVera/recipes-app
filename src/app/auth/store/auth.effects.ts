@@ -2,10 +2,12 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Actions, ofType, Effect } from '@ngrx/effects';
-import { switchMap, catchError, map, tap, switchMapTo } from 'rxjs/operators';
+import { switchMap, catchError, map, tap } from 'rxjs/operators';
 import { of, Observable } from 'rxjs';
 
 import * as AuthActions from './auth.actions';
+import { AuthService } from '../auth.service';
+import { User } from '../user.model';
 import { environment } from '../../../environments/environment';
 
 export interface AuthResponseData {
@@ -20,10 +22,13 @@ export interface AuthResponseData {
 @Injectable()
 export class AuthEffects {
 
+    private readonly userSession = 'userData';
+
     constructor(
         private actions$: Actions,
         private http: HttpClient,
-        private router: Router
+        private router: Router,
+        private authService: AuthService
     ) {}
 
     @Effect()
@@ -73,6 +78,48 @@ export class AuthEffects {
         })
     );
 
+    @Effect()
+    autoLogin = this.actions$.pipe(
+        ofType(AuthActions.AUTO_LOGIN),
+        map(() => {
+            const userData: {
+                email: string;
+                id: string;
+                _token: string;
+                _tokenExpirationDate: string;
+            } = JSON.parse(localStorage.getItem(this.userSession));
+
+            if (!userData) {
+                return { type: 'DUMMY' };
+            }
+
+            const loadedUser = new User(
+                userData.email,
+                userData.id,
+                userData._token,
+                new Date(userData._tokenExpirationDate)
+            );
+
+            if (loadedUser.token) {
+                // Calculate time left in miliseconds
+                const exporationDuration =
+                    new Date(userData._tokenExpirationDate).getTime() -
+                    new Date().getTime();
+
+                this.authService.setLogoutTimer(exporationDuration);
+
+                return new AuthActions.AuthenticateSuccess({
+                    email: loadedUser.email,
+                    userId: loadedUser.id,
+                    token: loadedUser.token,
+                    expirationDate: new Date(userData._tokenExpirationDate)
+                });
+            }
+
+            return { type: 'DUMMY' };
+        })
+    );
+
     // Tell NgRx Effects that this effect does not dispatch an Action
     @Effect({dispatch: false})
     authSuccess = this.actions$.pipe(
@@ -87,12 +134,24 @@ export class AuthEffects {
     authLogOut = this.actions$.pipe(
         ofType(AuthActions.LOGOUT),
         tap(() => {
+            this.authService.clearLogoutTimer();
+            localStorage.removeItem(this.userSession);
             this.router.navigate(['/auth']);
         })
     );
 
     private handleSuccess(email: string, userId: string, token: string, expiresIn: number) {
         const expirationDate = new Date(new Date().getTime() + expiresIn * 1000);
+        const user = new User(
+            email,
+            userId,
+            token,
+            expirationDate
+        );
+
+        this.authService.setLogoutTimer(expiresIn * 1000);
+        localStorage.setItem(this.userSession, JSON.stringify(user));
+
         return new AuthActions.AuthenticateSuccess({
             email: email,
             userId: userId,

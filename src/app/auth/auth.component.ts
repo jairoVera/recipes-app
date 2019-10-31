@@ -72,17 +72,6 @@ export class AuthComponent implements OnInit, OnDestroy {
       }));
     }
 
-    // authObs.subscribe(
-    //   responseData => {
-    //     this.isLoading = false;
-    //     this.router.navigate(['/recipes']);
-    //   }, errorMessage => {
-    //     this.error = errorMessage;
-    //     this.showErrorAlert(errorMessage);
-    //     this.isLoading = false;
-    //   }
-    // );
-
     this.form.reset();
   }
 
