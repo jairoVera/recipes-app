@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Actions, ofType, Effect } from '@ngrx/effects';
-import { switchMap, catchError, map, tap } from 'rxjs/operators';
+import { switchMap, catchError, map, tap, switchMapTo } from 'rxjs/operators';
 import { of, Observable } from 'rxjs';
 
 import * as AuthActions from './auth.actions';
@@ -20,6 +20,36 @@ export interface AuthResponseData {
 @Injectable()
 export class AuthEffects {
 
+    constructor(
+        private actions$: Actions,
+        private http: HttpClient,
+        private router: Router
+    ) {}
+
+    @Effect()
+    authSignUp = this.actions$.pipe(
+        ofType(AuthActions.SIGNUP_START),
+        switchMap((authData: AuthActions.SignupStart) => {
+            return this.http.post<AuthResponseData>(
+                'https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=' + environment.firebase_API_KEY,
+                {
+                    email: authData.payload.email,
+                    password: authData.payload.password,
+                    returnSecureToken: true
+                }
+            ).pipe(
+                map(response => this.handleSuccess(
+                    response.email,
+                    response.localId,
+                    response.idToken,
+                    +response.expiresIn
+                )),
+                // Convert error to Observable to keep the Observable Stream alive
+                catchError(error => this.handleError(error))
+            );
+        })
+    );
+
     @Effect()
     authLogin = this.actions$.pipe(
         ofType(AuthActions.LOGIN_START),
@@ -32,20 +62,13 @@ export class AuthEffects {
                     returnSecureToken: true
                 }
             ).pipe(
-                map(responseData => {
-                    const expirationDate = new Date(new Date().getTime() + +responseData.expiresIn * 1000);
-
-                    return new AuthActions.Login({
-                        email: responseData.email,
-                        userId: responseData.localId,
-                        token: responseData.idToken,
-                        expirationDate: expirationDate
-                    });
-                }),
-                catchError(error => {
-                    // Convert error to Observable to keep the Observable Stream alive
-                    return this.handleError(error);
-                })
+                map(response => this.handleSuccess(
+                    response.email,
+                    response.localId,
+                    response.idToken,
+                    +response.expiresIn
+                )),
+                catchError(error => this.handleError(error))
             );
         })
     );
@@ -53,24 +76,37 @@ export class AuthEffects {
     // Tell NgRx Effects that this effect does not dispatch an Action
     @Effect({dispatch: false})
     authSuccess = this.actions$.pipe(
-        ofType(AuthActions.LOGIN),
+        ofType(AuthActions.AUTHENTICATE_SUCCESS),
         tap(() => {
             this.router.navigate(['/recipes']);
         })
     );
 
-    constructor(
-        private actions$: Actions,
-        private http: HttpClient,
-        private router: Router
-    ) {}
+    // Tell NgRx Effects that this effect does not dispatch an Action
+    @Effect({dispatch: false})
+    authLogOut = this.actions$.pipe(
+        ofType(AuthActions.LOGOUT),
+        tap(() => {
+            this.router.navigate(['/auth']);
+        })
+    );
 
-    private handleError(errorResponse: HttpErrorResponse): Observable<AuthActions.LoginFail> {
+    private handleSuccess(email: string, userId: string, token: string, expiresIn: number) {
+        const expirationDate = new Date(new Date().getTime() + expiresIn * 1000);
+        return new AuthActions.AuthenticateSuccess({
+            email: email,
+            userId: userId,
+            token: token,
+            expirationDate: expirationDate
+        });
+    }
+
+    private handleError(errorResponse: HttpErrorResponse): Observable<AuthActions.AuthenticateFail> {
         let errorMessage = 'An unknown error ocurred!';
 
         if (!errorResponse.error || !errorResponse.error.error) {
             console.log(errorResponse);
-            return of(new AuthActions.LoginFail(errorMessage));
+            return of(new AuthActions.AuthenticateFail(errorMessage));
         }
 
         switch (errorResponse.error.error.message) {
@@ -90,6 +126,6 @@ export class AuthEffects {
                 console.log(errorResponse);
         }
 
-        return of(new AuthActions.LoginFail(errorMessage));
+        return of(new AuthActions.AuthenticateFail(errorMessage));
     }
 }

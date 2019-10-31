@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { throwError, BehaviorSubject } from 'rxjs';
+import { throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
@@ -98,7 +98,7 @@ export class AuthService {
 
         if (loadedUser.token) {
             //this.user.next(loadedUser);
-            this.store.dispatch(new AuthActions.Login({
+            this.store.dispatch(new AuthActions.AuthenticateSuccess({
                 email: loadedUser.email,
                 userId: loadedUser.id,
                 token: loadedUser.token,
@@ -124,8 +124,6 @@ export class AuthService {
         this.store.dispatch(new AuthActions.Logout());
 
         localStorage.removeItem(this.userSession);
-
-        this.router.navigate(['/auth']);
     }
 
     autoLogout(expirationDuration: number) {
@@ -144,7 +142,7 @@ export class AuthService {
         );
 
         //this.user.next(user);
-        this.store.dispatch(new AuthActions.Login({
+        this.store.dispatch(new AuthActions.AuthenticateSuccess({
             email: email,
             userId: userId,
             token: token,
