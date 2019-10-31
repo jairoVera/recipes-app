@@ -3,8 +3,11 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { throwError, BehaviorSubject } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import { Router } from '@angular/router';
+import { Store } from '@ngrx/store';
 
 import { User } from './user.model';
+import * as fromApp from '../store/app.reducer';
+import * as AuthActions from '../auth/store/auth.actions';
 import { environment } from '../../environments/environment';
 
 export interface AuthResponseData {
@@ -23,10 +26,14 @@ export class AuthService {
 
     private readonly userSession = 'userData';
 
-    user = new BehaviorSubject<User>(null);
+    //user = new BehaviorSubject<User>(null);
     tokenExpirationTimeout: any;
 
-    constructor(private http: HttpClient, private router: Router) {}
+    constructor(
+        private http: HttpClient,
+        private router: Router,
+        private store: Store<fromApp.AppState>
+    ) {}
 
     signUp(email: string, password: string) {
         return this.http.post<AuthResponseData>(
@@ -37,6 +44,7 @@ export class AuthService {
                 returnSecureToken: true
             }
         ).pipe(
+            catchError(this.handleError),
             tap(responseData => {
                 this.handleAuthentication(
                     responseData.email,
@@ -44,8 +52,7 @@ export class AuthService {
                     responseData.idToken,
                     +responseData.expiresIn
                 );
-            }),
-            catchError(this.handleError)
+            })
         );
     }
 
@@ -58,6 +65,7 @@ export class AuthService {
                 returnSecureToken: true
             }
         ).pipe(
+            catchError(this.handleError),
             tap(responseData => {
                 this.handleAuthentication(
                     responseData.email,
@@ -65,8 +73,7 @@ export class AuthService {
                     responseData.idToken,
                     +responseData.expiresIn
                 );
-            }),
-            catchError(this.handleError)
+            })
         );
     }
 
@@ -90,7 +97,13 @@ export class AuthService {
         );
 
         if (loadedUser.token) {
-            this.user.next(loadedUser);
+            //this.user.next(loadedUser);
+            this.store.dispatch(new AuthActions.Login({
+                email: loadedUser.email,
+                userId: loadedUser.id,
+                token: loadedUser.token,
+                expirationDate: new Date(userData._tokenExpirationDate)
+            }));
 
             // Calculate time left in miliseconds
             const exporationDuration =
@@ -107,7 +120,9 @@ export class AuthService {
         }
         this.tokenExpirationTimeout = null;
 
-        this.user.next(null);
+        //this.user.next(null);
+        this.store.dispatch(new AuthActions.Logout());
+
         localStorage.removeItem(this.userSession);
 
         this.router.navigate(['/auth']);
@@ -128,7 +143,14 @@ export class AuthService {
             expirationDate
         );
 
-        this.user.next(user);
+        //this.user.next(user);
+        this.store.dispatch(new AuthActions.Login({
+            email: email,
+            userId: userId,
+            token: token,
+            expirationDate: expirationDate
+        }));
+
         this.autoLogout(expiresIn * 1000);
         localStorage.setItem(this.userSession, JSON.stringify(user));
     }
