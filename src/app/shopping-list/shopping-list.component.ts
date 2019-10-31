@@ -4,7 +4,7 @@ import { Store } from '@ngrx/store';
 
 import { Ingridient } from '../shared/ingridient.model';
 import * as fromApp from '../store/app.reducer';
-import * as shoppingListActions from './store/shopping-list.actions';
+import * as ShoppingListActions from './store/shopping-list.actions';
 
 @Component({
   selector: 'app-shopping-list',
@@ -22,6 +22,6 @@ export class ShoppingListComponent implements OnInit {
   }
 
   onClickItem(index: number) {
-    this.store.dispatch(new shoppingListActions.StartEdit(index));
+    this.store.dispatch(new ShoppingListActions.StartEdit(index));
   }
 }
