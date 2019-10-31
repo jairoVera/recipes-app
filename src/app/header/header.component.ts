@@ -5,7 +5,6 @@ import { map } from 'rxjs/operators';
 import { Store } from '@ngrx/store';
 
 import * as fromApp from '../store/app.reducer';
-import { AuthService } from '../auth/auth.service';
 import * as AuthActions from '../auth/store/auth.actions';
 
 @Component({
@@ -18,7 +17,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
     isAuthenticated = false;
 
     constructor(
-        private authService: AuthService,
         private dataStorageService: DataStorageService,
         private store: Store<fromApp.AppState>) {}
 

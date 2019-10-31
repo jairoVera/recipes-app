@@ -1,5 +1,3 @@
-import { tokenName } from '@angular/compiler'
-
 export class User {
     constructor(
         public email: string,
