@@ -4,7 +4,7 @@ import { Store } from '@ngrx/store';
 
 import { Recipe } from './recipe.model';
 import { Ingridient } from '../shared/ingridient.model';
-import { AddIngridients } from '../shopping-list/store/shopping-list.actions';
+import * as ShoppingListActions from '../shopping-list/store/shopping-list.actions';
 import * as fromApp from '../store/app.reducer';
 
 @Injectable({
@@ -51,6 +51,6 @@ export class RecipeService {
     }
 
     addIngridientsToShoppingList(ingridients: Ingridient[]) {
-        this.store.dispatch(new AddIngridients(ingridients));
+        this.store.dispatch(new ShoppingListActions.AddIngridients(ingridients));
     }
 }
