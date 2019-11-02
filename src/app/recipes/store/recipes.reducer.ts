@@ -14,6 +14,10 @@ export function recipeReducer(
     action: RecipesActions.RecipeActions
 ) {
     switch (action.type) {
+        case RecipesActions.FETCH_RECIPES:
+            return {
+                ...state,
+            };
         case RecipesActions.SET_RECIPES:
             return {
                 ...state,
