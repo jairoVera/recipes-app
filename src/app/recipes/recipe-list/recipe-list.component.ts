@@ -22,7 +22,7 @@ export class RecipeListComponent implements OnInit, OnDestroy {
     private store: Store<fromApp.AppState>) {}
 
   ngOnInit() {
-    this.recipes = this.recipeService.getRecipes();
+    // this.recipes = this.recipeService.getRecipes();
 
     this.recipesChangedSubscription = this.store.select('recipes')
       .pipe(map(recipesState => recipesState.recipes))
