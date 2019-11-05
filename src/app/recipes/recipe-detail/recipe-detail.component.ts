@@ -6,6 +6,8 @@ import { Store } from '@ngrx/store';
 import { RecipeService } from '../recipe.service';
 import { Recipe } from '../recipe.model';
 import * as fromApp from '../../store/app.reducer';
+import * as RecipeActions from '../store/recipes.actions';
+import * as ShoppingListActions from '../../shopping-list/store/shopping-list.actions';
 
 @Component({
   selector: 'app-recipe-detail',
@@ -48,11 +50,13 @@ export class RecipeDetailComponent implements OnInit {
   }
 
   onSelectToShoppingList() {
-    this.recipeService.addIngridientsToShoppingList(this.recipe.ingridients.slice());
+    //this.recipeService.addIngridientsToShoppingList(this.recipe.ingridients.slice());
+    this.store.dispatch(new ShoppingListActions.AddIngridients(this.recipe.ingridients));
   }
 
   onDeleteRecipe() {
-    this.recipeService.deleteRecipe(this.recipeId);
+    //this.recipeService.deleteRecipe(this.recipeId);
+    this.store.dispatch(new RecipeActions.DeleteRecipe(this.recipeId));
     this.router.navigate(['../'], { relativeTo: this.route });
   }
 }
