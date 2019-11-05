@@ -13,7 +13,7 @@ export class AuthInterceptorService implements HttpInterceptor {
     intercept(req: HttpRequest<any>, next: HttpHandler) {
         return this.store.select('auth').pipe(
             /**
-             * Complete the observable after the 1st emitted value.
+             * Complete (unsub) the observable after the 1st emitted value.
              */
             take(1),
             map(authState => authState.user),

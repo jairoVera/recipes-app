@@ -15,14 +15,14 @@ import * as fromApp from '../../store/app.reducer';
 export class ShoppingEditComponent implements OnInit, OnDestroy {
 
   @ViewChild('f', { static: false }) form: NgForm;
-  subscription: Subscription;
+  shopListSub: Subscription;
   editMode = false;
   editedItem: Ingridient;
 
   constructor(private store: Store<fromApp.AppState>) {}
 
   ngOnInit() {
-    this.subscription = this.store.select('shoppingList').subscribe(stateData => {
+    this.shopListSub = this.store.select('shoppingList').subscribe(stateData => {
       if (stateData.editedIngridientIndex !== -1) {
         this.editMode = true;
         this.editedItem = stateData.editedIngridient;
@@ -64,7 +64,9 @@ export class ShoppingEditComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.subscription.unsubscribe();
+    if (this.shopListSub) {
+      this.shopListSub.unsubscribe();
+    }
     this.store.dispatch(new ShoppingListActions.StopEdit());
   }
 }
