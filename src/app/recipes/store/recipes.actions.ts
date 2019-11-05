@@ -26,13 +26,13 @@ export class AddRecipe implements Action {
 export class UpdateRecipe implements Action {
     readonly type = UPDATE_RECIPE;
 
-    constructor(public payload: {index: number, recipe: Recipe}) {}
+    constructor(public payload: {index: number, newRecipe: Recipe}) {}
 }
 
 export class DeleteRecipe implements Action {
     readonly type = DELETE_RECIPE;
 
-    constructor(public payload: Recipe) {}
+    constructor(public payload: number) {}
 }
 
 export type RecipeActions =
