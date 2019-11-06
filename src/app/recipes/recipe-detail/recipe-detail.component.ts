@@ -1,9 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Params, Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { map, switchMap } from 'rxjs/operators';
 import { Store } from '@ngrx/store';
 
-import { RecipeService } from '../recipe.service';
 import { Recipe } from '../recipe.model';
 import * as fromApp from '../../store/app.reducer';
 import * as RecipeActions from '../store/recipes.actions';
@@ -20,7 +19,6 @@ export class RecipeDetailComponent implements OnInit {
   recipe: Recipe;
 
   constructor(
-    private recipeService: RecipeService,
     private route: ActivatedRoute,
     private router: Router,
     private store: Store<fromApp.AppState>) {}
