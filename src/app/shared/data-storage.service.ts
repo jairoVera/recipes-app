@@ -1,3 +1,11 @@
+/**
+ * DEPRECATED CODE
+ *
+ * The DataStorageService originally managed the API calls to the Firebase database.
+ *
+ * However, we shifted to use NgRx Effects (RecipesEffects class) to handle the API calls.
+ * We are keeping the DataStorageService class file as a reference.
+ */
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { map, tap } from 'rxjs/operators';
@@ -8,9 +16,9 @@ import { Recipe } from '../recipes/recipe.model';
 import * as fromApp from '../store/app.reducer';
 import * as RecipesActions from '../recipes/store/recipes.actions';
 
-@Injectable({
-    providedIn: 'root'
-})
+// @Injectable({
+//     providedIn: 'root'
+// })
 export class DataStorageService {
 
     constructor(

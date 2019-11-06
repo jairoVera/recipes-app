@@ -1,11 +1,10 @@
 /**
  * DEPRECATED CODE
  *
- * The ShoppingListService originally managed the shopping-list ingridients and
- * the state of the shopping-list module.
+ * The ShoppingListService originally managed the state of the shopping-list module.
  *
- * However, we shifted to use NgRx to manage the shopping-list ingridients and state.
- * We are keeping the ShoppingListService class file are reference.
+ * However, we shifted to use NgRx Actions to manage the shopping-list ingridients and state.
+ * We are keeping the ShoppingListService class file as reference.
  */
 import { Ingridient } from '../shared/ingridient.model';
 import { Subject } from 'rxjs';
