@@ -48,6 +48,10 @@ export function recipeReducer(
                     return index !== action.payload;
                 })
             };
+        case RecipesActions.STORE_RECIPES:
+            return {
+                ...state
+            };
         default:
             return state;
     }
